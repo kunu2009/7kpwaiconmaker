@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Icon Maker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #fafafa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+        }
+
+        .upload-area.drag-over {
+            border-color: #667eea;
+            background: #f0f0ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .preview-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .original-preview {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .original-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .original-info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .icon-card {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .icon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-preview {
+            width: 100%;
+            max-width: 192px;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+        }
+
+        .icon-info {
+            margin-bottom: 15px;
+        }
+
+        .icon-size {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .icon-purpose {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .download-all-section {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f5ff, #fff);
+            border-radius: 15px;
+        }
+
+        .download-all-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-all-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .manifest-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 15px;
+        }
+
+        .manifest-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .manifest-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5a67d8;
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .reset-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PWA Icon Maker</h1>
+        <p class="subtitle">Generate perfect icons for your Progressive Web App</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Drop your image here or click to upload</div>
+            <div class="upload-subtext">Supports JPG, PNG, GIF, WebP • Best results with square images</div>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your image...</p>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="original-preview">
+                <h3>Original Image</h3>
+                <img id="originalImage" src="" alt="Original">
+                <div class="original-info" id="originalInfo"></div>
+            </div>
+
+            <h3 style="text-align: center; margin-bottom: 20px; color: #333;">Generated PWA Icons</h3>
+            
+            <div class="icons-grid" id="iconsGrid"></div>
+
+            <div class="download-all-section">
+                <button class="download-all-btn" id="downloadAllBtn">
+                    <span>📦</span>
+                    <span>Download All Icons</span>
+                </button>
+            </div>
+
+            <div class="manifest-section">
+                <div class="manifest-title">
+                    <span>📋</span>
+                    <span>Manifest.json Configuration</span>
+                </div>
+                <div class="manifest-code" id="manifestCode">
+                    <button class="copy-btn" id="copyBtn">Copy</button>
+                    <pre id="manifestContent"></pre>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="reset-btn" id="resetBtn">🔄 Upload New Image</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Icon sizes configuration for PWA
+        const iconSizes = [
+            { size: 72, purpose: 'Standard icon' },
+            { size: 96, purpose: 'Standard icon' },
+            { size: 128, purpose: 'Standard icon' },
+            { size: 144, purpose: 'Standard icon' },
+            { size: 152, purpose: 'iOS icon' },
+            { size: 192, purpose: 'Standard Android icon' },
+            { size: 384, purpose: 'Large icon' },
+            { size: 512, purpose: 'Splash screen icon' }
+        ];
+
+        let originalFileName = 'icon';
+        const generatedIcons = [];
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewSection = document.getElementById('previewSection');
+        const originalImage = document.getElementById('originalImage');
+        const originalInfo = document.getElementById('originalInfo');
+        const iconsGrid = document.getElementById('iconsGrid');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const loading = document.getElementById('loading');
+        const manifestContent = document.getElementById('manifestContent');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Handle file upload
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+
+            // Extract filename without extension
+            originalFileName = file.name.replace(/\.[^/.]+$/, "").replace(/\s+/g, '-').toLowerCase();
+            
+            loading.classList.add('active');
+            uploadArea.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    displayOriginal(e.target.result, img.width, img.height, file.size);
+                    generateIcons(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Display original image info
+        function displayOriginal(src, width, height, size) {
+            originalImage.src = src;
+            const sizeKB = (size / 1024).toFixed(2);
+            originalInfo.innerHTML = `
+                <strong>Dimensions:</strong> ${width} × ${height}px<br>
+                <strong>File Size:</strong> ${sizeKB} KB
+            `;
+        }
+
+        // Generate icons
+        function generateIcons(img) {
+            iconsGrid.innerHTML = '';
+            generatedIcons.length = 0;
+
+            iconSizes.forEach((config, index) => {
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = config.size;
+                    canvas.height = config.size;
+                    
+                    // Draw with smooth scaling
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    
+                    // Calculate aspect ratio and center the image
+                    const aspectRatio = img.width / img.height;
+                    let drawWidth = config.size;
+                    let drawHeight = config.size;
+                    let offsetX = 0;
+                    let offsetY = 0;
+
+                    if (aspectRatio > 1) {
+                        drawHeight = config.size / aspectRatio;
+                        offsetY = (config.size - drawHeight) / 2;
+                    } else if (aspectRatio < 1) {
+                        drawWidth = config.size * aspectRatio;
+                        offsetX = (config.size - drawWidth) / 2;
+                    }
+
+                    // Fill background with white for transparency
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, config.size, config.size);
+                    
+                    // Draw the image
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const fileName = `${originalFileName}-${config.size}x${config.size}.png`;
+                        
+                        generatedIcons.push({
+                            blob,
+                            url,
+                            fileName,
+                            size: config.size
+                        });
+
+                        createIconCard(url, config.size, config.purpose, fileName, blob);
+
+                        if (index === iconSizes.length - 1) {
+                            loading.classList.remove('active');
+                            previewSection.classList.add('active');
+                            generateManifestSnippet();
+                        }
+                    }, 'image/png', 0.95);
+                }, index * 100);
+            });
+        }
+
+        // Create icon card
+        function createIconCard(url, size, purpose, fileName, blob) {
+            const card = document.createElement('div');
+            card.className = 'icon-card';
+            card.innerHTML = `
+                <img src="${url}" alt="${size}x${size}" class="icon-preview">
+                <div class="icon-info">
+                    <div class="icon-size">${size}×${size}px</div>
+                    <div class="icon-purpose">${purpose}</div>
+                </div>
+                <button class="download-btn" data-filename="${fileName}">
+                    <span>💾</span>
+                    <span>Download</span>
+                </button>
+            `;
+
+            const downloadBtn = card.querySelector('.download-btn');
+            downloadBtn.addEventListener('click', () => {
+                downloadIcon(blob, fileName);
+            });
+
+            iconsGrid.appendChild(card);
+        }
+
+        // Download single icon
+        function downloadIcon(blob, fileName) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = fileName;
+            a.click();
+        }
+
+        // Download all icons
+        downloadAllBtn.addEventListener('click', async () => {
+            // Download icons sequentially with a small delay
+            for (let i = 0; i < generatedIcons.length; i++) {
+                const icon = generatedIcons[i];
+                downloadIcon(icon.blob, icon.fileName);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        });
+
+        // Generate manifest.json snippet
+        function generateManifestSnippet() {
+            const iconsJson = generatedIcons.map(icon => ({
+                src: `/icons/${icon.fileName}`,
+                sizes: `${icon.size}x${icon.size}`,
+                type: "image/png",
+                purpose: "any maskable"
+            }));
+
+            const manifest = {
+                name: "Your App Name",
+                short_name: "App",
+                icons: iconsJson,
+                start_url: "/",
+                display: "standalone",
+                theme_color: "#667eea",
+                background_color: "#ffffff"
+            };
+
+            manifestContent.textContent = JSON.stringify(manifest, null, 2);
+        }
+
+        // Copy manifest to clipboard
+        copyBtn.addEventListener('click', () => {
+            const text = manifestContent.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        // Reset
+        resetBtn.addEventListener('click', () => {
+            previewSection.classList.remove('active');
+            uploadArea.style.display = 'block';
+            fileInput.value = '';
+            generatedIcons.forEach(icon => URL.revokeObjectURL(icon.url));
+            generatedIcons.length = 0;
+        });
+    </script>
+</body>
+</html>
